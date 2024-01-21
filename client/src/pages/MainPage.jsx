@@ -1,8 +1,14 @@
 import React, { useRef, useEffect, useState } from "react";
-import { MapContainer, Marker, TileLayer } from "react-leaflet";
+import { MapContainer, Marker, TileLayer, useMapEvents } from "react-leaflet";
 import { useNavigate } from "react-router-dom";
 import { SERVER_URL } from "../consts/consts";
-import { highMarker, lowMarker, averageMarker } from "../consts/markers";
+import {
+  highMarker,
+  lowMarker,
+  averageMarker,
+  currentMarker,
+} from "../consts/markers";
+import L from "leaflet";
 
 export default function MainPage() {
   const navigate = useNavigate();
@@ -10,6 +16,7 @@ export default function MainPage() {
   const [average, setAverage] = useState([]);
   const [low, setLow] = useState([]);
   const [isVisible, setVisible] = useState(true);
+  const [map, setMap] = useState(null);
   const mapRef = useRef(null);
 
   useEffect(() => {
@@ -66,8 +73,22 @@ export default function MainPage() {
         [45.509, -73.552],
       ];
       map.fitBounds(rectangleBounds);
+
+      setMap(map);
     }
   }, []);
+
+  function MapLocator() {
+    const map = useMapEvents({
+      click: (e) => {
+        if (map) {
+          console.log(e.latlng);
+          L.marker(e.latlng, { icon: currentMarker }).addTo(map);
+        }
+      },
+    });
+    return null;
+  }
 
   return (
     <>
@@ -79,10 +100,12 @@ export default function MainPage() {
           style={{ height: "400px" }}
           whenCreated={(map) => (mapRef.current = map)}
         >
+          <MapLocator />
           <TileLayer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             attribution="© OpenStreetMap contributors"
           />
+
           {high.map((station, index) => {
             return (
               isVisible && (
@@ -120,6 +143,9 @@ export default function MainPage() {
             );
           })}
         </MapContainer>
+
+        {/* Add useMapEvents for click handling */}
+
         <div className="text-center">
           <button
             className="bg-green-300 rounded-md mt-6 p-4 hover:scale-110 transition"
