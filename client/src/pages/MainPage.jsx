@@ -1,12 +1,64 @@
-import React, { useRef, useEffect } from "react";
-import { MapContainer, TileLayer } from "react-leaflet";
+import React, { useRef, useEffect, useState } from "react";
+import { MapContainer, Marker, TileLayer } from "react-leaflet";
 import { useNavigate } from "react-router-dom";
+import { SERVER_URL } from "../consts/consts";
+import { highMarker, lowMarker, averageMarker } from "../consts/markers";
 
 export default function MainPage() {
   const navigate = useNavigate();
+  const [high, setHigh] = useState([]);
+  const [average, setAverage] = useState([]);
+  const [low, setLow] = useState([]);
+  const [isVisible, setVisible] = useState(true);
   const mapRef = useRef(null);
 
   useEffect(() => {
+    async function getHighStations() {
+      try {
+        const response = await fetch(`${SERVER_URL}/bixi/high`);
+        if (!response.ok) {
+          setHigh([]);
+          return;
+        }
+        const data = await response.json();
+        setHigh(data);
+      } catch {
+        setHigh([]);
+      }
+    }
+
+    async function getAverageStations() {
+      try {
+        const response = await fetch(`${SERVER_URL}/bixi/average`);
+        if (!response.ok) {
+          setAverage([]);
+          return;
+        }
+        const data = await response.json();
+        setAverage(data);
+      } catch {
+        setAverage([]);
+      }
+    }
+
+    async function getLowStations() {
+      try {
+        const response = await fetch(`${SERVER_URL}/bixi/low`);
+        if (!response.ok) {
+          setLow([]);
+          return;
+        }
+        const data = await response.json();
+        setLow(data);
+      } catch {
+        setLow([]);
+      }
+    }
+
+    getHighStations();
+    getAverageStations();
+    getLowStations();
+
     if (mapRef.current) {
       const map = mapRef.current;
       const rectangleBounds = [
@@ -22,8 +74,8 @@ export default function MainPage() {
       <div style={{ width: "100%", maxWidth: "600px", margin: "0 auto" }}>
         <MapContainer
           className="mt-8 border-2 border-black rounded-md "
-          center={[45.5088, -73.554]}
-          zoom={13}
+          center={[45.4958, -73.579]}
+          zoom={21}
           style={{ height: "400px" }}
           whenCreated={(map) => (mapRef.current = map)}
         >
@@ -31,6 +83,42 @@ export default function MainPage() {
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             attribution="© OpenStreetMap contributors"
           />
+          {high.map((station, index) => {
+            return (
+              isVisible && (
+                <Marker
+                  className=""
+                  key={index}
+                  position={[station.latitude, station.longitude]}
+                  icon={highMarker}
+                />
+              )
+            );
+          })}
+
+          {average.map((station, index) => {
+            return (
+              isVisible && (
+                <Marker
+                  key={index}
+                  position={[station.latitude, station.longitude]}
+                  icon={averageMarker}
+                />
+              )
+            );
+          })}
+          {low.map((station, index) => {
+            return (
+              isVisible && (
+                <Marker
+                  className="hidden"
+                  key={index}
+                  position={[station.latitude, station.longitude]}
+                  icon={lowMarker}
+                />
+              )
+            );
+          })}
         </MapContainer>
         <div className="text-center">
           <button
