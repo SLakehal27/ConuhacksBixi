@@ -49,6 +49,19 @@ df = df.drop(columns=['ENDSTATIONNAME', 'ENDSTATIONLATITUDE', 'ENDSTATIONLONGITU
 df = df.drop(columns=['STARTTIMEMS','ENDTIMEMS','STARTSTATION_VISIT_COUNT'])
 df = df.drop(columns=['ENDSTATIONARRONDISSEMENT'])
 
+# sort by ACHALENDEMENT putting the ones with the ACHALENDEMENT 'high' first and the 'low' last
+achalandement_mapping = {'high': 3, 'average': 2, 'low': 1}
+df['ACHALENDEMENT_SORT'] = df['ACHALENDEMENT'].map(achalandement_mapping)
+
+# Sort by ACHALENDEMENT
+df = df.sort_values(by='ACHALENDEMENT_SORT', ascending=False)
+
+# Drop the temporary sorting column
+df = df.drop(columns=['ACHALENDEMENT_SORT'])
+
+# Save the final DataFrame to a new CSV file
+df.to_csv('traitement/DonneesBixi.csv', index=False)
+
 
 # Save the DataFrame to a CSV file
 df.to_csv('traitement/Data.csv', index=False)
