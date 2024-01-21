@@ -4,22 +4,17 @@ import { Container, Row, Col } from "react-bootstrap";
 import { Graph } from "../consts/graphs";
 
 export default function StatsPage() {
-  const graph = new Graph();
   return (
     <div className="StatsPage">
       <Container>
         <Row>
           <Col>
-            <h1>Statistiques et graphes</h1>
-            {graph.render()}
+            <h1 className="text-center font-black mb-4 mt-4">
+              Statistiques et graphes
+            </h1>
           </Col>
         </Row>
         <Graph />
-        <Row>
-          <Col>
-            <Link to="/">Retour</Link>
-          </Col>
-        </Row>
       </Container>
     </div>
   );

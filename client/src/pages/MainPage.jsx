@@ -88,8 +88,6 @@ export default function MainPage() {
         if (marker) {
           marker.remove();
         }
-        console.log(e.latlng);
-        console.log(map);
         if (map) {
           const actualMarker = L.marker(e.latlng, {
             icon: currentMarker,

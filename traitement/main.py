@@ -39,9 +39,8 @@ station_visit_map = start_station_counts.to_dict()
 df['STARTSTATION_VISIT_COUNT'] = df['STARTSTATIONNAME'].map(station_visit_map)
 
 # Define categories based on visit counts
-max_visit = max(station_visit_map.values())
 df['ACHALENDEMENT'] = df['STARTSTATION_VISIT_COUNT'].apply(
-    lambda x: 'low' if x < max_visit / 3 else 'average' if x < 2 * max_visit / 3 else 'high'
+    lambda x: 'high' if x > 3000 else 'average' if 1000 <= x <= 3000 else 'low'
 )
 
 # sort by ACHALENDEMENT putting the ones with the ACHALENDEMENT 'high' first and the 'low' last
@@ -61,17 +60,21 @@ df = df.drop(columns=['ACHALENDEMENT_SORT'])
 # Drop columns 
 df = df.drop(columns=['STARTSTATIONARRONDISSEMENT'])
 df = df.drop(columns=['ENDSTATIONNAME', 'ENDSTATIONLATITUDE', 'ENDSTATIONLONGITUDE'])
-df = df.drop(columns=['STARTTIMEMS','ENDTIMEMS','STARTSTATION_VISIT_COUNT'])
+df = df.drop(columns=['STARTTIMEMS','ENDTIMEMS'])
 df = df.drop(columns=['ENDSTATIONARRONDISSEMENT'])
 
 # Rename column STARTSTATIONNAME to address
 df = df.rename(columns={'STARTSTATIONNAME': 'address'})
 # Rename column STARTSTATIONLATITUDE to latitude
 df = df.rename(columns={'STARTSTATIONLATITUDE': 'latitude'})
+# Rename column START to longitude
+df = df.rename(columns={'STARTSTATIONLONGITUDE': 'longitude'})
 # Rename column STARTSTATIONLONGITUDE to longitude
 df = df.rename(columns={'STARTSTATIONLONGITUDE': 'longitude'})
 # Rename column ACHALENDEMENT to type
 df = df.rename(columns={'ACHALENDEMENT': 'type'})
+# Rename column STARTSTATION_VISIT_COUNT to visit_count
+df = df.rename(columns={'STARTSTATION_VISIT_COUNT': 'visit_count'})
 
 # Save the final DataFrame to a new CSV file
 df.to_csv('traitement/DonneesBixi.csv', index=False)

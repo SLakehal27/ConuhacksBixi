@@ -1,63 +1,70 @@
-import React, { Component } from "react";
-import { Line } from "react-chartjs-2";
+import React, { useEffect, useState } from "react";
+import { Bar } from "react-chartjs-2";
 import { SERVER_URL } from "./consts";
+import {
+  Chart as ChartJS,
+  BarElement,
+  CategoryScale,
+  LinearScale,
+  Tooltip,
+  Legend,
+} from "chart.js";
 
-export class Graph extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      data: [],
-    };
-  }
+ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
-  componentDidMount() {
-    this.loadData();
-  }
+export function Graph() {
+  const [data, setData] = useState([]);
 
-  async loadData() {
-    try {
-      const res = await fetch(`${SERVER_URL}/data`);
-      const data = await res.json();
-      this.setState({ data });
-    } catch (error) {
-      console.error("Error fetching data: ", error);
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const res = await fetch(`${SERVER_URL}/data`);
+        const jsonData = await res.json();
+        setData(jsonData); // Mise à jour de l'état avec les données
+      } catch (error) {
+        console.error("Error fetching data: ", error);
+      }
     }
-  }
 
-  render() {
-    const { data } = this.state;
-    const labels = data.map((d) => d.date);
-    const datasets = [
-      {
-        label: "Address",
-        data: data.map((d) => d.address),
-        borderColor: "red",
-      },
-      {
-        label: "Latitude",
-        data: data.map((d) => d.latitude),
-        borderColor: "blue",
-      },
-      {
-        label: "Longitude",
-        data: data.map((d) => d.longitude),
-        borderColor: "green",
-      },
-      {
-        label: "Type",
-        data: data.map((d) => d.type),
-        borderColor: "yellow",
-      },
-    ];
-    const chartData = {
-      labels,
-      datasets,
-    };
+    loadData();
+  }, []);
 
-    return (
-      <div>
-        <Line data={chartData} />
-      </div>
-    );
-  }
+  const sortedData = [...data].sort((a, b) => b.visit_count - a.visit_count);
+
+  const labels = sortedData.map((d) => d.address);
+
+  // Assigner une couleur en fonction de l'achalandage
+  const backgroundColor = sortedData.map((d) => {
+    switch (
+      d.type // Remplacez 'achalandage' par le nom réel de votre propriété
+    ) {
+      case "high":
+        return "green";
+      case "average":
+        return "orange";
+      case "low":
+        return "red";
+      default:
+        return "green";
+    }
+  });
+
+  const datasets = [
+    {
+      label: "Visit Count",
+      data: sortedData.map((d) => d.visit_count),
+      backgroundColor, // Utilisation du tableau de couleurs
+    },
+  ];
+
+  const chartData = {
+    labels,
+    datasets,
+  };
+
+  return (
+    <div>
+      <Bar data={chartData} />
+    </div>
+  );
 }
