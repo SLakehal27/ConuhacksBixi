@@ -73,17 +73,24 @@ export default function MainPage() {
         [45.509, -73.552],
       ];
       map.fitBounds(rectangleBounds);
-
-      setMap(map);
     }
   }, []);
 
+  //Buggy lol
   function MapLocator() {
+    const [marker, setMarker] = useState(null);
     const map = useMapEvents({
       click: (e) => {
+        if (marker) {
+          marker.remove();
+        }
+        console.log(e.latlng);
+        console.log(map);
         if (map) {
-          console.log(e.latlng);
-          L.marker(e.latlng, { icon: currentMarker }).addTo(map);
+          const actualMarker = L.marker(e.latlng, {
+            icon: currentMarker,
+          }).addTo(map);
+          setMarker(actualMarker);
         }
       },
     });
