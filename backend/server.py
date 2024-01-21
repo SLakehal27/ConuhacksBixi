@@ -1,5 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+import json
+import os
 
 origins = ["http://localhost:3000"]
 
@@ -12,39 +14,24 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+# Get the current script's directory
+script_dir = os.path.dirname(os.path.abspath(__file__))
 
-csv= [
-    {
-        "address": "Jardin Botanique dépôt fierté (Sherbrooke / Pie-IX)",
-        "latitude": 45.5567924,
-        "longitude": -73.554647,
-        "type": "average"
-    },
-    {
-        "address": "Jardin Botanique Dépôt Fierté (Sherbrooke / Pie-IX)",
-        "latitude": 45.5567924,
-        "longitude": -73.554647,
-        "type": "average"
-    },
-    {
-        "address": "Saint-Sylvestre / Labonté",
-        "latitude": 45.5354258,
-        "longitude": -73.5136585,
-        "type": "high"
-    },
-    {
-        "address": "Louis-R.-Renaud / Armand-Frappier",
-        "latitude": 45.5545669,
-        "longitude": -73.734473,
-        "type": "low"
-    },
-    {
-        "address": "St-Timothé / Robin",
-        "latitude": 45.5186318,
-        "longitude": -73.5611299,
-        "type": "high"
-    }
-]
+# Specify the path to the data.json file in the treat folder
+path = os.path.join(script_dir, '..', 'traitement', 'data.json')
+
+csv= []
+
+try:
+    with open(path,'r') as f:
+        csv = json.load(f)
+except FileNotFoundError:
+    print(f"File '{path}' not found.")
+except json.JSONDecodeError as e:
+    print(f"Error decoding JSON in file '{path}': {e}")
+except Exception as e:
+    print(f"An error occurred: {e}")
+
 
 def getType(type : str):
     return [station for station in csv if station["type"] == type]
@@ -70,3 +57,7 @@ async def getStart():
     if(lowStations != []) :
         return lowStations
     return []
+
+@app.get("/data")
+async def getData():
+    return csv

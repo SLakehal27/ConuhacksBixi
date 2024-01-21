@@ -12,7 +12,7 @@ export default function App() {
       <Header />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<MainPage />} />
+          <Route default path="/" element={<MainPage />} />
           <Route path="/stats" element={<StatsPage />} />
         </Routes>
       </BrowserRouter>

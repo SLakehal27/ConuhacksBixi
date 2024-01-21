@@ -15,7 +15,7 @@ export default function MainPage() {
   const [high, setHigh] = useState([]);
   const [average, setAverage] = useState([]);
   const [low, setLow] = useState([]);
-  const [isVisible, setVisible] = useState(true);
+  const [isVisible, setVisible] = useState(false);
   const [map, setMap] = useState(null);
   const mapRef = useRef(null);
 
@@ -81,6 +81,10 @@ export default function MainPage() {
     const [marker, setMarker] = useState(null);
     const map = useMapEvents({
       click: (e) => {
+        setVisible(true);
+
+        map.setView([e.latlng.lat, e.latlng.lng], 17);
+
         if (marker) {
           marker.remove();
         }
